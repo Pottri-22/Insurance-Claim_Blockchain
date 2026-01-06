@@ -26,6 +26,24 @@ const policySchema = new mongoose.Schema(
     terms: {
       type: String,
     },
+    enrolledUsers: [
+      {
+        userId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        enrolledAt: {
+          type: Date,
+          default: Date.now,
+        },
+        externalPolicy: {
+          type: Boolean,
+          default: false,
+        },
+      },
+    ],
+
+
     isActive: {
       type: Boolean,
       default: true,
