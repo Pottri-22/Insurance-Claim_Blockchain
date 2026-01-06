@@ -1,12 +1,21 @@
 import { Navigate } from "react-router-dom";
-import { useContext } from "react";
-import { AuthContext } from "../../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
 export default function ProtectedRoute({ role, children }) {
-  const { role: userRole } = useContext(AuthContext);
+  const { user, loading } = useAuth();
 
-  if (userRole !== role) {
-    return <Navigate to="/login" />;
+  if (loading) return null;
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (role && user.role !== role) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (user.role === "user" && user.isFirstLogin) {
+    return <Navigate to="/patient/complete-profile" replace />;
   }
 
   return children;

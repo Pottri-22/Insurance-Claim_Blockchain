@@ -5,7 +5,7 @@ export default function Sidebar() {
     <div style={styles.sidebar}>
       <div style={styles.logo}>Insurance</div>
 
-      <Link style={styles.link} to="#">Dashboard</Link>
+      <Link style={styles.link} to="/admin">Dashboard</Link>
       <Link style={styles.link} to="#">Claims</Link>
       <Link style={styles.link} to="#">Policies</Link>
       <Link style={styles.link} to="#">Profile</Link>
@@ -16,9 +16,11 @@ export default function Sidebar() {
 const styles = {
   sidebar: {
     width: 240,
+    minWidth: 240,          // ✅ PREVENT COLLAPSE
     background: "#1e3c72",
     color: "#fff",
-    padding: "30px 20px"
+    padding: "30px 20px",
+    boxSizing: "border-box"
   },
   logo: {
     fontSize: 20,

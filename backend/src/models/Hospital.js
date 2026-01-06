@@ -15,6 +15,11 @@ const hospitalSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    linkedInsuranceCompanies: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "InsuranceCompany",
+    }],
+
     isVerified: {
       type: Boolean,
       default: false,

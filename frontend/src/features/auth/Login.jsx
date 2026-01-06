@@ -1,28 +1,37 @@
-import { useState, useContext } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "./authService";
-import { AuthContext } from "../../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { setRole } = useContext(AuthContext);
+
+  const { firebaseUser } = useAuth();
   const navigate = useNavigate();
+
+  // 🔥 AUTO REDIRECT AFTER LOGIN
+  useEffect(() => {
+    if (firebaseUser) {
+      navigate("/patient"); // or role-based later
+    }
+  }, [firebaseUser, navigate]);
 
   const handleLogin = async () => {
     try {
       setLoading(true);
-      const data = await login(email, password);
-      const role = data.user.role;
-
-      setRole(role);
-
-      if (role === "admin") navigate("/admin");
-      else if (role === "doctor") navigate("/doctor");
-      else navigate("/patient");
-    } catch {
-      alert("Invalid credentials");
+      await login(email, password);
+    } catch (err) {
+      console.error("Login error:", err);
+      // If it's an axios error, prefer the server-provided message
+      if (err.response && err.response.data && err.response.data.message) {
+        alert(err.response.data.message);
+      } else if (err.code && err.message) {
+        alert(err.code + " : " + err.message);
+      } else {
+        alert(err.message || JSON.stringify(err));
+      }
     } finally {
       setLoading(false);
     }
@@ -35,7 +44,7 @@ export default function Login() {
 
         <input
           style={styles.input}
-          placeholder="Email address"
+          placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -48,16 +57,19 @@ export default function Login() {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button
-          style={{
-            ...styles.button,
-            background: loading ? "#999" : "#1e3c72"
-          }}
-          onClick={handleLogin}
-          disabled={loading}
-        >
+        <button style={styles.button} onClick={handleLogin} disabled={loading}>
           {loading ? "Signing in..." : "Login"}
         </button>
+
+        <p style={{ textAlign: "center", marginTop: 20 }}>
+          New user?{" "}
+          <span
+            style={{ color: "#1e3c72", cursor: "pointer", fontWeight: "bold" }}
+            onClick={() => navigate("/signup")}
+          >
+            Create an account
+          </span>
+        </p>
       </div>
     </div>
   );
@@ -65,39 +77,36 @@ export default function Login() {
 
 const styles = {
   page: {
-    minHeight: "100vh",
+    height: "100vh",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    background: "#eef2f7"
+    background: "#eef2f7",
   },
   card: {
     width: 420,
-    padding: "40px 45px",
+    padding: 40,
     background: "#fff",
     borderRadius: 8,
-    boxShadow: "0 8px 24px rgba(0,0,0,0.15)"
+    boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
   },
   title: {
-    marginBottom: 25,
     textAlign: "center",
-    color: "#1e3c72"
+    marginBottom: 30,
+    color: "#1e3c72",
   },
   input: {
     width: "100%",
-    padding: "12px 14px",
+    padding: 12,
     marginBottom: 18,
     fontSize: 15,
-    borderRadius: 4,
-    border: "1px solid #ccc"
   },
   button: {
     width: "100%",
-    padding: "12px",
-    border: "none",
-    borderRadius: 4,
+    padding: 12,
+    background: "#1e3c72",
     color: "#fff",
-    fontSize: 16,
-    cursor: "pointer"
-  }
+    border: "none",
+    cursor: "pointer",
+  },
 };
