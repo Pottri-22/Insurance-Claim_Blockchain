@@ -15,6 +15,16 @@ const insuranceCompanySchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    linkedHospitals: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Hospital",
+    }],
+
+    policies: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Policy",
+    }],
+
     isActive: {
       type: Boolean,
       default: true,
